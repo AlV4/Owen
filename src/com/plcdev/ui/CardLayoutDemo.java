@@ -1,4 +1,4 @@
-package com.plcdev.WorkRules;
+package com.plcdev.ui;
 
 import javax.swing.*;
 import java.awt.*;

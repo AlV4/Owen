@@ -1,7 +1,5 @@
 package com.plcdev.ui;
 
-import com.plcdev.WorkRules.CardLayoutDemo;
-
 import javax.swing.*;
 
 public class StartWorkFrame extends AbstractWorkPanel {
