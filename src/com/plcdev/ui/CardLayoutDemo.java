@@ -2,6 +2,8 @@ package com.plcdev.ui;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 
@@ -56,9 +58,25 @@ public class CardLayoutDemo implements ItemListener {
         textSet("Sorry, there is no available programs at the moment!");
         panel.add(text, new GridBagConstraints(
                 0, 0, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
-        buttonsSet();
-        panel.add(user, new GridBagConstraints(1, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        panel.add(engineer, new GridBagConstraints(0, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        user = new JButton("BACK");
+        user.setVerticalTextPosition(SwingConstants.BOTTOM);
+        user.setHorizontalTextPosition(SwingConstants.CENTER);
+        user.setIcon(new ImageIcon("back.png"));
+        user.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CardLayout cl = (CardLayout) (windows.getLayout());
+                cl.show(windows, MAINPANEL);
+            }
+        });
+
+        engineer = new JButton("CONFIG MODE");
+        engineer.setVerticalTextPosition(SwingConstants.BOTTOM);
+        engineer.setHorizontalTextPosition(SwingConstants.CENTER);
+        engineer.setIcon(new ImageIcon("settings.png"));
+
+        panel.add(user, new GridBagConstraints(0, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        panel.add(engineer, new GridBagConstraints(1, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         return panel;
     }
 
@@ -67,6 +85,13 @@ public class CardLayoutDemo implements ItemListener {
         user.setVerticalTextPosition(SwingConstants.BOTTOM);
         user.setHorizontalTextPosition(SwingConstants.CENTER);
         user.setIcon(new ImageIcon("start.png"));
+        user.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                CardLayout cl = (CardLayout) (windows.getLayout());
+                cl.show(windows, NO_PRG_PANEL);
+            }
+        });
 
         engineer = new JButton("CONFIG MODE");
         engineer.setVerticalTextPosition(SwingConstants.BOTTOM);
