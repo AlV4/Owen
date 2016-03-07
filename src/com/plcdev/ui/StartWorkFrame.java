@@ -8,6 +8,7 @@ public class StartWorkFrame extends AbstractWorkPanel {
         frame = new JFrame("OWEN PLC emulation window");
         frame.setMinimumSize(dimension);
         frame.setLocationRelativeTo(null);
+        frame.setResizable(false);
 
         CardLayoutDemo demo = new CardLayoutDemo();
 
@@ -15,6 +16,6 @@ public class StartWorkFrame extends AbstractWorkPanel {
 
         frame.pack();
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-        frame.setVisible(isVisible);
+        frame.setVisible(true);
     }
 }
