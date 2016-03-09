@@ -191,15 +191,15 @@ public class CardLayoutDemo implements ItemListener {
         JPanel panel = new JPanel(new GridBagLayout());
         textSet("Input the password in the window below.", new Color(0, 0, 0),28);
         panel.add(text, new GridBagConstraints(
-                0, 0, 2, 1, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
+                0, 0, 2, 1, 1, 0.8, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
 
         JPasswordField passField = new JPasswordField(10);
 
-        panel.add(passField, new GridBagConstraints(0, 0, 2, 1, 1, 1, GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        panel.add(passField, new GridBagConstraints(0, 1, 2, 1, 0.1, 0.1, GridBagConstraints.SOUTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
         buttonsSet("BACK", "NEXT", "back.png", "next.png", MAINPANEL, SETUP_PRG_MAIN);
 
-        panel.add(leftButton, new GridBagConstraints(0, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        panel.add(rightButton, new GridBagConstraints(1, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        panel.add(leftButton, new GridBagConstraints(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        panel.add(rightButton, new GridBagConstraints(1, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         return panel;
     }
 
