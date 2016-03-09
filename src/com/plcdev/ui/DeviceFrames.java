@@ -1,14 +1,17 @@
 package com.plcdev.ui;
 
+import com.plcdev.storagedata.*;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.util.ArrayList;
 
-public class CardLayoutDemo implements ItemListener {
-    JPanel windows; //a panel that uses CardLayout
+public class DeviceFrames implements ItemListener {
+    JPanel windows;
     final static String MAINPANEL = "Start main panel";
     final static String PASS_WINDOW = "Password window";
     final static String SETUP_PRG_MAIN = "Setup main program";
@@ -23,9 +26,15 @@ public class CardLayoutDemo implements ItemListener {
     protected JLabel text;
     protected JButton leftButton;
     protected JButton rightButton;
+    private UnitManager manager;
+    private String programName;
+    public JPanel userInstructions;
+
+    public DeviceFrames(UnitManager manager){
+        this.manager = manager;
+    }
 
     public void addComponentToPane(Container pane) {
-        //Put the JComboBox in a JPanel to get a nicer look.
         JPanel comboBoxPane = new JPanel(); //use FlowLayout
         String comboBoxItems[] = {
                 MAINPANEL,
@@ -49,7 +58,6 @@ public class CardLayoutDemo implements ItemListener {
         windows.add(mainPanel(), MAINPANEL);
         windows.add(noProductPanel(), NO_PRG_PANEL);
         windows.add(productChooser(), USER_PRODUCT_CHOOSER);
-        windows.add(userInstructions(), USER_INSTRUCTIONS);
         windows.add(userInProgress(), USER_IN_PROGRESS);
         windows.add(userComplete(), USER_OPER_COMPLETED);
         windows.add(passwordWindow(), PASS_WINDOW);
@@ -73,7 +81,11 @@ public class CardLayoutDemo implements ItemListener {
         panel.add(text, new GridBagConstraints(
                 0, 0, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
 
-        buttonsSet("START", "CONFIG MODE", "start.png", "settings.png", USER_PRODUCT_CHOOSER, PASS_WINDOW);
+        String leftBtn = USER_PRODUCT_CHOOSER;
+        if(manager.getListOfPrograms().isEmpty()){
+            leftBtn = NO_PRG_PANEL;
+        }
+        buttonsSet(false, "START", "CONFIG MODE", "start.png", "settings.png", leftBtn, PASS_WINDOW);
 
         panel.add(leftButton, new GridBagConstraints(0, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -86,7 +98,7 @@ public class CardLayoutDemo implements ItemListener {
         panel.add(text, new GridBagConstraints(
                 0, 0, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
 
-        buttonsSet("BACK", "CONFIG MODE", "back.png", "settings.png", MAINPANEL, PASS_WINDOW);
+        buttonsSet(false, "BACK", "CONFIG MODE", "back.png", "settings.png", MAINPANEL, PASS_WINDOW);
 
         panel.add(leftButton, new GridBagConstraints(0, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -95,33 +107,36 @@ public class CardLayoutDemo implements ItemListener {
 
     private JPanel productChooser(){
         JPanel panel = new JPanel(new GridBagLayout());
-        textSet("Select a program from the list below.", new Color(0, 0, 0),28);
+        textSet("Select a program from the list below.", new Color(0, 0, 0), 28);
         panel.add(text, new GridBagConstraints(
                 0, 0, 2, 1, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
-
-        String comboBoxItems[] = {
-                "First program",
-                "Second",
-                "So on",
-                USER_INSTRUCTIONS,
-                USER_IN_PROGRESS,
-                USER_OPER_COMPLETED
-        };
-
-        JComboBox<String> cb = new JComboBox<>(comboBoxItems);
+        ArrayList<Program> programs = new ArrayList<>(manager.getListOfPrograms());
+        String comboBoxItems[] = new String[programs.size()];
+        for(int i = 0; i < programs.size(); i++){
+            comboBoxItems[i] = programs.get(i).getName();
+        }
+        final JComboBox<String> cb = new JComboBox<>(comboBoxItems);
         cb.setEditable(false);
-        cb.addItemListener(this);
-        panel.add(cb, new GridBagConstraints(0, 0, 2, 1, 1, 1, GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        buttonsSet("BACK", "NEXT", "back.png", "next.png", MAINPANEL, USER_INSTRUCTIONS);
+        cb.addItemListener(manager);
+        panel.add(cb, new GridBagConstraints(0, 0, 2, 1, 0.1, 0.1, GridBagConstraints.SOUTH, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+        buttonsSet(false, "BACK", "NEXT", "back.png", "next.png", MAINPANEL, USER_INSTRUCTIONS);
+
+        rightButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                windows.add(userInstructions((String )cb.getSelectedItem()), USER_INSTRUCTIONS);
+            }
+        });
 
         panel.add(leftButton, new GridBagConstraints(0, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 1, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         return panel;
     }
 
-    private JPanel userInstructions(){
+    private JPanel userInstructions(String programName){
         JPanel panel = new JPanel(new GridBagLayout());
-        textSet("Program #1", new Color(0, 82, 255), 24);
+
+        textSet(programName, new Color(0, 82, 255), 24);
         panel.add(text, new GridBagConstraints(
                 0, 0, 2, 1, 0.5, 0.5, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
         JTextArea message = messageSet("Here will be the message what to do,\n" +
@@ -130,7 +145,16 @@ public class CardLayoutDemo implements ItemListener {
         panel.add(message, new GridBagConstraints(
                 0, 1, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
 
-        buttonsSet("ABORT", "NEXT", "cancel.png", "next.png", MAINPANEL, USER_IN_PROGRESS);
+        buttonsSet(false, "ABORT", "NEXT", "cancel.png", "next.png", MAINPANEL, USER_IN_PROGRESS);
+
+        leftButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                System.out.print(windows.getComponents().length + " ");
+                windows.remove(windows.getComponents().length - 1);
+                System.out.println((windows.getComponent(windows.getComponentCount() - 1)));
+            }
+        });
 
         panel.add(leftButton, new GridBagConstraints(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -163,7 +187,7 @@ public class CardLayoutDemo implements ItemListener {
         panel.add(text, new GridBagConstraints(
                 1, 3, 1, 1, 0.2, 0.2, GridBagConstraints.WEST, GridBagConstraints.VERTICAL, new Insets(0, 20, 0, 0), 0, 0));
 
-        buttonsSet("STOP", "NEXT", "stop.png", "next.png", USER_OPER_COMPLETED, MAINPANEL);
+        buttonsSet(false, "STOP", "NEXT", "stop.png", "next.png", USER_OPER_COMPLETED, MAINPANEL);
 
         panel.add(leftButton, new GridBagConstraints(0, 5, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 //        panel.add(rightButton, new GridBagConstraints(1, 5, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -179,7 +203,7 @@ public class CardLayoutDemo implements ItemListener {
         panel.add(text, new GridBagConstraints(
                 0, 1, 2, 1, 0.2, 0.2, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 20), 0, 0));
 
-        buttonsSet("STOP", "HOME", "stop.png", "home.png", MAINPANEL, MAINPANEL);
+        buttonsSet(false, "STOP", "HOME", "stop.png", "home.png", MAINPANEL, MAINPANEL);
 
 //        panel.add(leftButton, new GridBagConstraints(0, 2, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 2, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -196,7 +220,7 @@ public class CardLayoutDemo implements ItemListener {
         JPasswordField passField = new JPasswordField(10);
 
         panel.add(passField, new GridBagConstraints(0, 1, 2, 1, 0.1, 0.1, GridBagConstraints.SOUTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
-        buttonsSet("BACK", "NEXT", "back.png", "next.png", MAINPANEL, SETUP_PRG_MAIN);
+        buttonsSet(false, "BACK", "NEXT", "back.png", "next.png", MAINPANEL, SETUP_PRG_MAIN);
 
         panel.add(leftButton, new GridBagConstraints(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -220,7 +244,7 @@ public class CardLayoutDemo implements ItemListener {
         panel.add(textFieldSet(3), new GridBagConstraints(
                 1, 2, 1, 1, 0, 0.2, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
-        buttonsSet("CANCEL", "NEXT", "cancel.png", "next.png", MAINPANEL, SETUP_PRG_ELEMENT);
+        buttonsSet(false, "CANCEL", "NEXT", "cancel.png", "next.png", MAINPANEL, SETUP_PRG_ELEMENT);
 
         panel.add(leftButton, new GridBagConstraints(0, 3, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 3, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -256,7 +280,7 @@ public class CardLayoutDemo implements ItemListener {
         panel.add(textFieldSet(4), new GridBagConstraints(
                 1, 4, 1, 1, 0, 0.2, GridBagConstraints.WEST, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
 
-        buttonsSet("CANCEL", "NEXT", "cancel.png", "next.png", SETUP_PRG_MAIN, CHECK_PRG);
+        buttonsSet(false, "CANCEL", "NEXT", "cancel.png", "next.png", SETUP_PRG_MAIN, CHECK_PRG);
 
         panel.add(leftButton, new GridBagConstraints(0, 5, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 5, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -275,7 +299,7 @@ public class CardLayoutDemo implements ItemListener {
         panel.add(message, new GridBagConstraints(
                 0, 1, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
 
-        buttonsSet("ABORT", "SAVE", "cancel.png", "ok.png", SETUP_PRG_MAIN, FINISH_PRG);
+        buttonsSet(false, "ABORT", "SAVE", "cancel.png", "ok.png", SETUP_PRG_MAIN, FINISH_PRG);
 
         panel.add(leftButton, new GridBagConstraints(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -291,7 +315,7 @@ public class CardLayoutDemo implements ItemListener {
         panel.add(text, new GridBagConstraints(
                 0, 1, 2, 1, 0.2, 0.2, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 20), 0, 0));
 
-        buttonsSet("ANOTHER PRG", "HOME", "back.png", "home.png", SETUP_PRG_MAIN, MAINPANEL);
+        buttonsSet(false, "ANOTHER PRG", "HOME", "back.png", "home.png", SETUP_PRG_MAIN, MAINPANEL);
 
         panel.add(leftButton, new GridBagConstraints(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
         panel.add(rightButton, new GridBagConstraints(1, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
@@ -299,7 +323,8 @@ public class CardLayoutDemo implements ItemListener {
     }
 
 
-    private void buttonsSet(String button1, String button2,String image1, String image2, final String actionPanel1, final String actionPanel2) {
+    private void buttonsSet(boolean isCreate, String button1, String button2,String image1, String image2, final String actionPanel1, final String actionPanel2) {
+        if(!isCreate){
         leftButton = new JButton(button1);
         leftButton.setVerticalTextPosition(SwingConstants.BOTTOM);
         leftButton.setHorizontalTextPosition(SwingConstants.CENTER);
@@ -323,6 +348,9 @@ public class CardLayoutDemo implements ItemListener {
                 cl.show(windows, actionPanel2);
             }
         });
+        }else{
+
+        }
     }
 
     private void textSet(String str, Color color, int size) {

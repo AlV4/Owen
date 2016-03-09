@@ -1,16 +1,40 @@
 package com.plcdev.ui;
 
-import javax.swing.*;
+import com.plcdev.storagedata.*;
+import com.plcdev.storagedata.Component;
 
-public class StartWorkFrame extends AbstractWorkPanel {
+import javax.swing.*;
+import java.awt.*;
+
+public class StartWorkFrame {
 
     public StartWorkFrame() {
-        frame = new JFrame("OWEN PLC emulation window");
-        frame.setMinimumSize(dimension);
+        JFrame frame = new JFrame("OWEN PLC emulation window");
+        frame.setMinimumSize(new Dimension(800, 600));
         frame.setLocationRelativeTo(null);
         frame.setResizable(false);
 
-        CardLayoutDemo demo = new CardLayoutDemo();
+        UnitManager manager = new UnitManager();
+        for(int j = 1; j < 4; j++) {
+            Program program = new Program();
+            program.setName("Program #" + j);
+            program.setAmountOfComponents(3);
+
+            com.plcdev.storagedata.Component component = new Component();
+            for (int i = 1; i < 4; i++) {
+                component.setName(i + " component");
+                component.setIsSplittable(false);
+                component.setWeight(i * 100);
+                component.setMixingTime(i * i * 30);
+
+                program.getListOfComponents().add(component);
+            }
+            manager.getListOfPrograms().add(program);
+        }
+        manager.setCurrentProgram(manager.getListOfPrograms().get(0));
+//        manager.setCurrentProgramName(manager.getCurrentProgram().getName());
+//        manager.getListOfPrograms().add(new Program());
+        DeviceFrames demo = new DeviceFrames(manager);
 
         demo.addComponentToPane(frame.getContentPane());
 
