@@ -15,19 +15,13 @@ public class StartWorkFrame {
         frame.setResizable(false);
 
         UnitManager manager = new UnitManager();
-        for(int j = 1; j < 4; j++) {
+        for(int j = 1; j < 14; j++) {
             Program program = new Program();
             program.setName("Program #" + j);
             program.setAmountOfComponents(3);
 
-            com.plcdev.storagedata.Component component = new Component();
             for (int i = 1; i < 4; i++) {
-                component.setName(i + " component");
-                component.setIsSplittable(false);
-                component.setWeight(i * 100);
-                component.setMixingTime(i * i * 30);
-
-                program.getListOfComponents().add(component);
+                program.getListOfComponents().add(new Component("Comp# " + i, false, i * 100, i * i * 30));
             }
             manager.getListOfPrograms().add(program);
         }

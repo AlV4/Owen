@@ -9,6 +9,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class DeviceFrames implements ItemListener {
     JPanel windows;
@@ -27,8 +28,6 @@ public class DeviceFrames implements ItemListener {
     protected JButton leftButton;
     protected JButton rightButton;
     private UnitManager manager;
-    private String programName;
-    public JPanel userInstructions;
 
     public DeviceFrames(UnitManager manager){
         this.manager = manager;
@@ -39,13 +38,13 @@ public class DeviceFrames implements ItemListener {
         String comboBoxItems[] = {
                 MAINPANEL,
                 PASS_WINDOW,
+                USER_INSTRUCTIONS,
                 SETUP_PRG_MAIN,
                 SETUP_PRG_ELEMENT,
                 CHECK_PRG,
                 FINISH_PRG,
                 NO_PRG_PANEL,
                 USER_PRODUCT_CHOOSER,
-                USER_INSTRUCTIONS,
                 USER_IN_PROGRESS,
                 USER_OPER_COMPLETED
         };
@@ -58,6 +57,7 @@ public class DeviceFrames implements ItemListener {
         windows.add(mainPanel(), MAINPANEL);
         windows.add(noProductPanel(), NO_PRG_PANEL);
         windows.add(productChooser(), USER_PRODUCT_CHOOSER);
+        windows.add(userInstructions(),USER_INSTRUCTIONS,0);
         windows.add(userInProgress(), USER_IN_PROGRESS);
         windows.add(userComplete(), USER_OPER_COMPLETED);
         windows.add(passwordWindow(), PASS_WINDOW);
@@ -65,6 +65,7 @@ public class DeviceFrames implements ItemListener {
         windows.add(setUpProgramElement(), SETUP_PRG_ELEMENT);
         windows.add(checkProgramInput(),CHECK_PRG);
         windows.add(finishProgramWriting(),FINISH_PRG);
+
 
         pane.add(comboBoxPane, BorderLayout.PAGE_START);
         pane.add(windows, BorderLayout.CENTER);
@@ -94,7 +95,7 @@ public class DeviceFrames implements ItemListener {
 
     private JPanel noProductPanel(){
         JPanel panel = new JPanel(new GridBagLayout());
-        textSet("Sorry, no available programs at the moment!", new Color(0, 0, 0),28);
+        textSet("Sorry, no available programs at the moment!", new Color(0, 0, 0), 28);
         panel.add(text, new GridBagConstraints(
                 0, 0, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
 
@@ -110,7 +111,7 @@ public class DeviceFrames implements ItemListener {
         textSet("Select a program from the list below.", new Color(0, 0, 0), 28);
         panel.add(text, new GridBagConstraints(
                 0, 0, 2, 1, 1, 1, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
-        ArrayList<Program> programs = new ArrayList<>(manager.getListOfPrograms());
+        final ArrayList<Program> programs = new ArrayList<>(manager.getListOfPrograms());
         String comboBoxItems[] = new String[programs.size()];
         for(int i = 0; i < programs.size(); i++){
             comboBoxItems[i] = programs.get(i).getName();
@@ -124,7 +125,11 @@ public class DeviceFrames implements ItemListener {
         rightButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                windows.add(userInstructions((String )cb.getSelectedItem()), USER_INSTRUCTIONS);
+                windows.remove(0);
+                manager.setCurrentProgramName((String) cb.getSelectedItem());
+                windows.add(userInstructions(), USER_INSTRUCTIONS, 0);
+                System.out.println(manager.getCurrentProgram().getName() + " "
+                        + Arrays.asList(manager.getCurrentProgram().getListOfComponents()));
             }
         });
 
@@ -133,37 +138,34 @@ public class DeviceFrames implements ItemListener {
         return panel;
     }
 
-    private JPanel userInstructions(String programName){
+    private JPanel userInstructions(){
         JPanel panel = new JPanel(new GridBagLayout());
+        com.plcdev.storagedata.Component comp = manager.getCurrentComponent();
+        if(comp != null) {
+            textSet(manager.getCurrentProgramName(), new Color(0, 82, 255), 24);
+            panel.add(text, new GridBagConstraints(
+                    0, 0, 2, 1, 0.5, 0.5, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
+            JTextArea message = messageSet(
+                    "Please, put inside the component: " + comp.getName() + ",\n" +
+                            "weight of the component:" + comp.getWeight() + " kg,\n" +
+                            "and press button NEXT.", new Color(232, 232, 232), 24);
+            panel.add(message, new GridBagConstraints(
+                    0, 1, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
 
-        textSet(programName, new Color(0, 82, 255), 24);
-        panel.add(text, new GridBagConstraints(
-                0, 0, 2, 1, 0.5, 0.5, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
-        JTextArea message = messageSet("Here will be the message what to do,\n" +
-                "what component to put inside, and\n" +
-                "how much time to wait approximately.", new Color(232, 232, 232), 24);
-        panel.add(message, new GridBagConstraints(
-                0, 1, 2, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
+            buttonsSet(false, "ABORT", "NEXT", "cancel.png", "next.png", MAINPANEL, USER_IN_PROGRESS);
 
-        buttonsSet(false, "ABORT", "NEXT", "cancel.png", "next.png", MAINPANEL, USER_IN_PROGRESS);
-
-        leftButton.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.print(windows.getComponents().length + " ");
-                windows.remove(windows.getComponents().length - 1);
-                System.out.println((windows.getComponent(windows.getComponentCount() - 1)));
-            }
-        });
-
-        panel.add(leftButton, new GridBagConstraints(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        panel.add(rightButton, new GridBagConstraints(1, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
-        return panel;
+            panel.add(leftButton, new GridBagConstraints(0, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+            panel.add(rightButton, new GridBagConstraints(1, 2, 1, 1, 1, 1, GridBagConstraints.CENTER, GridBagConstraints.NONE, new Insets(0, 0, 0, 0), 0, 0));
+            return panel;
+        }else {
+            System.out.println(comp);
+            return userInProgress();
+        }
     }
 
     private JPanel userInProgress(){
         JPanel panel = new JPanel(new GridBagLayout());
-        textSet("Program #1", new Color(0, 82, 255),24);
+        textSet(manager.getCurrentProgram().getName(), new Color(0, 82, 255),24);
         panel.add(text, new GridBagConstraints(
                 0, 0, 2, 1, 0.5, 0.5, GridBagConstraints.NORTH, GridBagConstraints.VERTICAL, new Insets(0, 0, 0, 0), 0, 0));
         textSet("Time estimated:", new Color(0, 0, 0), 16);

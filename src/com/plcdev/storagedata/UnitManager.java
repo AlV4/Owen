@@ -12,6 +12,7 @@ public class UnitManager implements ItemListener{
     private int currentWeight;
     private Program currentProgram;
     private Component currentComponent;
+    private int currentComponentIndex;
 
     public UnitManager() {
         listOfPrograms = new ArrayList<>();
@@ -26,6 +27,12 @@ public class UnitManager implements ItemListener{
     }
 
     public Component getCurrentComponent() {
+        if(currentComponentIndex >= currentProgram.getListOfComponents().size()){
+            currentComponentIndex = 0;
+            return null;
+        }
+        setCurrentComponent(currentProgram.getListOfComponents().get(currentComponentIndex));
+        currentComponentIndex++;
         return currentComponent;
     }
 
@@ -47,6 +54,11 @@ public class UnitManager implements ItemListener{
 
     public void setCurrentProgramName(String currentProgramName) {
         this.currentProgramName = currentProgramName;
+        for(Program p : listOfPrograms){
+            if(p.getName().equalsIgnoreCase(currentProgramName)){
+                setCurrentProgram(p);
+            }
+        }
     }
 
     public int getStep() {
@@ -63,6 +75,14 @@ public class UnitManager implements ItemListener{
 
     public void setCurrentWeight(int currentWeight) {
         this.currentWeight = currentWeight;
+    }
+
+    public int getCurrentComponentIndex() {
+        return currentComponentIndex;
+    }
+
+    public void setCurrentComponentIndex(int currentComponentIndex) {
+        this.currentComponentIndex = currentComponentIndex;
     }
 
     @Override

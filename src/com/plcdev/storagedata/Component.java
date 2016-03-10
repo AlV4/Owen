@@ -9,6 +9,13 @@ public class Component {
     public Component() {
     }
 
+    public Component(String name, boolean isSplittable, int weight, int mixingTime) {
+        this.name = name;
+        this.isSplittable = isSplittable;
+        this.weight = weight;
+        this.mixingTime = mixingTime;
+    }
+
     public String getName() {
         return name;
     }
